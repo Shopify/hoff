@@ -15,22 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: .github/actions/setup-go
       with:
         go-version: ${{ matrix.version }}
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/go/pkg/mod
-          vendor
-        key: ${{ runner.os }}-go-${{ matrix.version }}-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-${{ matrix.version }}-
-    - name: Setup deps
-      run: |
-        go mod download
-        go mod tidy
-        go mod vendor
 
   test:
     needs: ["deps"]
@@ -41,23 +28,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: .github/actions/setup-go
       with:
         go-version: ${{ matrix.version }}
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/go/pkg/mod
-          vendor
-        key: ${{ runner.os }}-go-${{ matrix.version }}-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-${{ matrix.version }}-
-    - name: Setup deps
-      run: |
-        go mod download
-        go mod tidy
-        go mod vendor
-
     - name: Test and Bench
       run: go test -v -bench=. ./...
 
@@ -70,22 +43,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: .github/actions/setup-go
       with:
         go-version: ${{ matrix.version }}
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/go/pkg/mod
-          vendor
-        key: ${{ runner.os }}-go-${{ matrix.version }}-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-${{ matrix.version }}-
-    - name: Setup deps
-      run: |
-        go mod download
-        go mod tidy
-        go mod vendor
 
     - name: Build and Run
       run: |
