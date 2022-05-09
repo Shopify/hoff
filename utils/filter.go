@@ -14,6 +14,7 @@ func Filter[T any](arr []T, fn func(T) bool) (out []T) {
 	return out
 }
 
+// FilterContext is "context aware" and will pass the parent func's ctx param along to the callback fn.
 func FilterContext[T any](
 	ctx context.Context,
 	arr []T,
@@ -27,6 +28,7 @@ func FilterContext[T any](
 	return out
 }
 
+// FilterError will return early with the first error encountered in the callback fn, if any.
 func FilterError[T any](
 	arr []T,
 	fn func(elem T) (bool, error),
@@ -43,6 +45,8 @@ func FilterError[T any](
 	return out, nil
 }
 
+// FilterContextError combines both "FilterContext" and "FilterError" approaches, passing through the ctx,
+// and stopping and returning the first error encountered.
 func FilterContextError[T any](
 	ctx context.Context,
 	arr []T,
