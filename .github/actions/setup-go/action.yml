@@ -1,0 +1,27 @@
+name: 'Setup Go'
+description: 'Setup Go and its dependencies'
+inputs:
+  go-version:  # id of input
+    description: 'go version'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ inputs.go-version }}
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/go/pkg/mod
+          vendor
+        key: ${{ runner.os }}-go-${{ inputs.go-version }}-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ inputs.go-version }}-
+    - name: Setup deps
+      shell: bash
+      run: |
+        go mod download
+        go mod tidy
+        go mod vendor
