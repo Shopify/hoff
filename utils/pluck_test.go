@@ -34,7 +34,7 @@ func TestPluckStringSingleKey(t *testing.T) {
 
 func BenchmarkPluck(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		slice, err := generateRandomMapUint64(10_000, 1000, 1_000_000)
+		slice, err := generateRandomMapUint64(100_000, 100, 1_000_000)
 		if err != nil {
 			b.Errorf("Error in generating random slice")
 		}
@@ -46,7 +46,7 @@ func generateRandomMapUint64(elements int, keys int, max int64) ([]map[int]uint6
 	inputSlice := make([]map[int]uint64, elements)
 	for i := 0; i < elements; i++ {
 		m := make(map[int]uint64, keys)
-		for k := 0; k < keys; i++ {
+		for k := 0; k < keys; k++ {
 			value, err := rand.Int(rand.Reader, big.NewInt(max))
 			if err != nil {
 				return nil, err
