@@ -27,6 +27,22 @@ func FilterContext[T any](
 	return out
 }
 
+func FilterError[T any](
+	arr []T,
+	fn func(elem T) (bool, error),
+) (out []T, err error) {
+	for _, elem := range arr {
+		include, err := fn(elem)
+		if err != nil {
+			return nil, err
+		}
+		if include {
+			out = append(out, elem)
+		}
+	}
+	return out, nil
+}
+
 func FilterContextError[T any](
 	ctx context.Context,
 	arr []T,

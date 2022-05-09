@@ -69,6 +69,38 @@ func TestFilterContext(t *testing.T) {
 	require.Len(t, filtered, 0)
 }
 
+func errorAwareCallbackInt(i int) (bool, error) {
+	if i == 4 {
+		return false, fmt.Errorf("invalid int (4) encountered")
+	}
+	if i < 4 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func TestFilterError(t *testing.T) {
+	ints := []int{1, 2, 3}
+	filtered, err := FilterError(ints, errorAwareCallbackInt)
+	require.NoError(t, err)
+	require.ElementsMatch(t, filtered, []int{1, 2, 3})
+
+	ints = []int{5, 6, 7}
+	filtered, err = FilterError(ints, errorAwareCallbackInt)
+	require.NoError(t, err)
+	require.Len(t, filtered, 0)
+
+	ints = []int{1, 2, 3, 5, 6, 7}
+	filtered, err = FilterError(ints, errorAwareCallbackInt)
+	require.NoError(t, err)
+	require.ElementsMatch(t, filtered, []int{1, 2, 3})
+
+	ints = []int{4, 5, 6, 7}
+	filtered, err = FilterError(ints, errorAwareCallbackInt)
+	require.Error(t, err)
+	require.Len(t, filtered, 0)
+}
+
 func contextErrorAwareCallbackInt(ctx context.Context, i int) (bool, error) {
 	if ctx.Value("throwError") == true {
 		return false, fmt.Errorf("throwError true")
