@@ -1,4 +1,4 @@
-# HOF: Higher Order Functions
+# hoff: Higher Order Functions (and Friends)
 
 Golang 1.18+ implementations of common methods/data structures using Go Generics
 
@@ -27,4 +27,4 @@ See the [.github/workflows](./.github/workflows) folder for all the details.
 
 ## License
 
-hof is released under the [MIT License](https://opensource.org/licenses/MIT).
+hoff is released under the [MIT License](https://opensource.org/licenses/MIT).
