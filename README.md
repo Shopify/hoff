@@ -12,6 +12,10 @@ Compile and run the main.go file in the project root in one easy command:
 go run ./main.go
 ```
 
+## Requirements
+
+- Go 1.18 or newer (must support Generics)
+
 ## Running tests/benchmarks
 
 Run the tests and benchmarks for the project using this command:
