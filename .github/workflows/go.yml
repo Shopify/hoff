@@ -33,6 +33,7 @@ jobs:
         go mod vendor
 
   test:
+    needs: ["deps"]
     strategy:
       matrix:
         version: ['1.18.0', '1.18.1']
@@ -61,6 +62,7 @@ jobs:
       run: go test -v -bench=. ./...
 
   build:
+    needs: ["deps"]
     strategy:
       matrix:
         version: ['1.18.0', '1.18.1']
