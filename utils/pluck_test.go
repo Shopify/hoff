@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -28,4 +30,30 @@ func TestPluckStringSingleKey(t *testing.T) {
 		{"foo": 4, "bar": 5},
 	}, "foo")
 	require.Equal(t, [][]any{{1}, {4}}, output, "1 keys extracted")
+}
+
+func BenchmarkPluck(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		slice, err := generateRandomMapUint64(10_000, 1000, 1_000_000)
+		if err != nil {
+			b.Errorf("Error in generating random slice")
+		}
+		Pluck(slice, 1, 2, 3)
+	}
+}
+
+func generateRandomMapUint64(elements int, keys int, max int64) ([]map[int]uint64, error) {
+	inputSlice := make([]map[int]uint64, elements)
+	for i := 0; i < elements; i++ {
+		m := make(map[int]uint64, keys)
+		for k := 0; k < keys; i++ {
+			value, err := rand.Int(rand.Reader, big.NewInt(max))
+			if err != nil {
+				return nil, err
+			}
+			m[k] = value.Uint64()
+		}
+		inputSlice[i] = m
+	}
+	return inputSlice, nil
 }
