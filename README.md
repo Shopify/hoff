@@ -2,16 +2,6 @@
 
 Golang 1.18+ implementations of common methods/data structures using Go Generics
 
-## Quick Start
-
-[main.go](./main.go) contains a comprehensive example of how the `set` package works.
-
-Compile and run the main.go file in the project root in one easy command:
-
-```bash
-go run ./main.go
-```
-
 ## Requirements
 
 - Go 1.18 or newer (must support Generics)
