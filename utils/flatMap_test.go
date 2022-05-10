@@ -9,25 +9,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type FlatMapTestCase struct {
-	In    []string
-	Out   []string
-	Fn    func(s string) []string
-	FnCtx func(ctx context.Context, s string) []string
+type flatMapTestCase struct {
+	in  []string
+	out []string
 }
 
-var testCases = []FlatMapTestCase{
+var testCases = []flatMapTestCase{
 	{
-		In:    []string{"abcd"},
-		Out:   []string{"a", "b", "c", "d"},
-		Fn:    splitString,
-		FnCtx: splitStringWithContext,
+		in:  []string{"abcd"},
+		out: []string{"a", "b", "c", "d"},
 	},
 	{
-		In:    []string{"abcd", "efg"},
-		Out:   []string{"a", "b", "c", "d", "e", "f", "g"},
-		Fn:    splitString,
-		FnCtx: splitStringWithContext,
+		in:  []string{"abcd", "efg"},
+		out: []string{"a", "b", "c", "d", "e", "f", "g"},
 	},
 }
 
@@ -38,30 +32,12 @@ var testKey = contextKey("T")
 
 func TestFlatMap(t *testing.T) {
 	for _, testCase := range testCases {
-		out := FlatMap(testCase.In, testCase.Fn)
-		require.Equal(t, testCase.Out, out)
-	}
-}
-
-func TestFlatMapContext(t *testing.T) {
-	ctx := context.WithValue(context.Background(), key, "value")
-	ctx = context.WithValue(ctx, testKey, t)
-
-	for _, testCase := range testCases {
-		out := FlatMapContext(ctx, testCase.In, testCase.FnCtx)
-		require.Equal(t, testCase.Out, out)
-		require.Equal(t, "value", ctx.Value(key))
+		out := FlatMap(testCase.in, splitString)
+		require.Equal(t, testCase.out, out)
 	}
 }
 
 func splitString(s string) []string {
-	return strings.Split(s, "")
-}
-
-func splitStringWithContext(ctx context.Context, s string) []string {
-	t := ctx.Value(testKey).(*testing.T)
-	require.Equal(t, "value", ctx.Value(key))
-
 	return strings.Split(s, "")
 }
 
@@ -87,4 +63,19 @@ func createStringSlice(length, num int) []string {
 	}
 
 	return data
+}
+
+func TestFlatMapContext(t *testing.T) {
+	splitStringWithContext := func(c context.Context, s string) []string {
+		require.Equal(t, "a_value", c.Value(key))
+
+		return strings.Split(s, "")
+	}
+	ctx := context.WithValue(context.Background(), key, "a_value")
+
+	for _, testCase := range testCases {
+		out := FlatMapContext(ctx, testCase.in, splitStringWithContext)
+		require.Equal(t, testCase.out, out)
+		require.Equal(t, "a_value", ctx.Value(key))
+	}
 }
