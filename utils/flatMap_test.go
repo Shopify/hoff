@@ -41,7 +41,7 @@ func ExampleFlatMap() {
 	// Output: [4 3]
 }
 
-var benchmarkData = createStringSlice(100, 1000)
+var benchmarkData = createStringsSlice(100, 1000)
 var benchmarkResult []string
 var benchmarkError error
 
@@ -112,36 +112,25 @@ func TestFlatMapContext(t *testing.T) {
 	for _, testCase := range testCases {
 		out := FlatMapContext(ctx, testCase.in, fn)
 		require.Equal(t, testCase.out, out)
-		require.Equal(t, "a_value", ctx.Value(key))
 	}
 }
 
 func TestFlatMapContextErrorSucceeds(t *testing.T) {
-	fn := func(c context.Context, s string) ([]string, error) {
-		require.Equal(t, "a_value", c.Value(key))
-
-		return splitStringWithContextAndError(c, s)
-	}
 	ctx := context.WithValue(context.Background(), key, "a_value")
 
-	out, err := FlatMapContextError(ctx, testCases[0].in, fn)
+	out, err := FlatMapContextError(ctx, testCases[0].in, splitStringWithContextAndError)
+
 	require.NoError(t, err)
 	require.Equal(t, testCases[0].out, out)
-	require.Equal(t, "a_value", ctx.Value(key))
 }
 
 func TestFlatMapContextErrorFails(t *testing.T) {
-	fn := func(c context.Context, s string) ([]string, error) {
-		require.Equal(t, "a_value", c.Value(key))
-
-		return splitStringWithContextAndError(c, s)
-	}
 	ctx := context.WithValue(context.Background(), key, "a_value")
 
-	out, err := FlatMapContextError(ctx, testCases[1].in, fn)
+	out, err := FlatMapContextError(ctx, testCases[1].in, splitStringWithContextAndError)
+
 	require.Error(t, err)
 	require.Len(t, out, 0)
-	require.Equal(t, "a_value", ctx.Value(key))
 }
 
 func splitString(s string) []string {
@@ -156,13 +145,17 @@ func splitStringWithError(s string) ([]string, error) {
 }
 
 func splitStringWithContextAndError(ctx context.Context, s string) ([]string, error) {
+	if ctx.Value(key) != "a_value" {
+		return nil, fmt.Errorf("Context values not received")
+	}
+
 	if len(s) < 4 {
 		return nil, fmt.Errorf("String '%s' too short", s)
 	}
 	return strings.Split(s, ""), nil
 }
 
-func createStringSlice(length, num int) []string {
+func createStringsSlice(length, num int) []string {
 	data := make([]string, num)
 	value := strings.Repeat("a", length)
 
