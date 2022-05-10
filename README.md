@@ -11,7 +11,7 @@ Golang 1.18+ implementations of common methods/data structures using Go Generics
 Run the tests and benchmarks for the project using this command:
 
 ```bash
-go test -v -bench=. ./...
+go test -v -bench=. -race ./...
 ```
 
 ## CI/CD and Github Actions
