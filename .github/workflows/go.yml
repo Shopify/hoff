@@ -52,10 +52,11 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: cp coverage.lcov main.lcov
     - name: Code Coverage Report
-      uses: romeovs/lcov-reporter-action@v0.2.11
+      uses: romeovs/lcov-reporter-action@v0.3.1
       if: matrix.version == '1.18.1'
       with:
         lcov-file: ./coverage.lcov
         lcov-base: ./main.lcov
         filter-changed-files: true
         delete-old-comments: true
+        github-token: ${{ secrets.GITHUB_TOKEN }}
