@@ -23,6 +23,7 @@ jobs:
     permissions:
       contents: read
       issues: write
+      pull-requests: write
     needs: ["deps"]
     strategy:
       matrix:
