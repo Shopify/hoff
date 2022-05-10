@@ -1,4 +1,4 @@
-module github.com/Shopify/hof
+module github.com/Shopify/hoff
 
 go 1.18
 

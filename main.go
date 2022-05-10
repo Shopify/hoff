@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Shopify/hof/set"
+	"github.com/Shopify/hoff/set"
 )
 
 func main() {
