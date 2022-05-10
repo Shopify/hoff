@@ -4,7 +4,6 @@ import "context"
 
 // FlatMap applies a transformation to an array of elements and
 // returns another array with the transformed result
-// Example: FlatMap([]string{"abcd", "efg"}, func(s string) []int { return []int{len(s)} }) = [4, 3].
 func FlatMap[In, Out any](arr []In, fn func(In) []Out) (out []Out) {
 	for _, elem := range arr {
 		out = append(out, fn(elem)...)

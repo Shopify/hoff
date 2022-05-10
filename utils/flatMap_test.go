@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -62,4 +63,28 @@ func splitStringWithContext(ctx context.Context, s string) []string {
 	require.Equal(t, "value", ctx.Value(key))
 
 	return strings.Split(s, "")
+}
+
+func ExampleFlatMap() {
+	fmt.Println(FlatMap([]string{"abcd", "efg"}, func(s string) []int { return []int{len(s)} }))
+	// Output: [4 3]
+}
+
+var benchmarkData = createStringSlice(100, 1000)
+
+func BenchmarkFlatMap(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FlatMap(benchmarkData, splitString)
+	}
+}
+
+func createStringSlice(length, num int) []string {
+	data := make([]string, num)
+	value := strings.Repeat("a", length)
+
+	for i := 0; i < num; i++ {
+		data[i] = value
+	}
+
+	return data
 }
