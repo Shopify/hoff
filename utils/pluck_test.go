@@ -2,6 +2,7 @@ package utils
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math/big"
 	mrand "math/rand"
 	"testing"
@@ -9,6 +10,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 )
+
+func ExamplePluck() {
+	fmt.Println(Pluck([]map[string]any{{"foo": 1}, {"bar": 4}}, "bar"))
+	// Output: [[<nil>] [4]]
+}
 
 func TestPluckStringBasic(t *testing.T) {
 	output := Pluck([]map[string]any{
