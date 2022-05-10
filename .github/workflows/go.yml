@@ -20,6 +20,9 @@ jobs:
         go-version: ${{ matrix.version }}
 
   test:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: ["deps"]
     strategy:
       matrix:
@@ -31,9 +34,23 @@ jobs:
       uses: ./.github/actions/setup-go
       with:
         go-version: ${{ matrix.version }}
+    - name: Main branch coverage
+      uses: actions/cache@v3
+      with:
+        path: |
+          main.lcov
+        key: ${{ runner.os }}-${{ github.ref }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-refs/heads/main-
     - name: Test and Bench
       run: go test -v -coverprofile coverage.out -bench -race ./...
     - uses: jandelgado/gcov2lcov-action@v1.0.5
+    - name: Store main branch lcov
+      if: github.ref == 'refs/heads/main'
+      run: cp coverage.lcov main.lcov
     - uses: romeovs/lcov-reporter-action@v0.2.16
       with:
         lcov-file: ./coverage.lcov
+        lcov-base: ./main.lcov
+        filter-changed-files: true
+        delete-old-comments: true
