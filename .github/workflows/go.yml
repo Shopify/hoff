@@ -57,6 +57,5 @@ jobs:
       with:
         lcov-file: ./coverage.lcov
         lcov-base: ./main.lcov
-        filter-changed-files: true
         delete-old-comments: true
         github-token: ${{ secrets.GITHUB_TOKEN }}
