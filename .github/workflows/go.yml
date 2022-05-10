@@ -32,4 +32,8 @@ jobs:
       with:
         go-version: ${{ matrix.version }}
     - name: Test and Bench
-      run: go test -v -bench=. -race ./...
+      run: go test -v -coverprofile coverage.out -bench -race ./...
+    - uses: jandelgado/gcov2lcov-action@v1.0.5
+    - uses: romeovs/lcov-reporter-action@v0.2.16
+      with:
+        lcov-file: ./coverage.lcov
