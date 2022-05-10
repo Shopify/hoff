@@ -36,7 +36,7 @@ jobs:
         go-version: ${{ matrix.version }}
     - name: Main branch coverage
       uses: actions/cache@v3
-      if: matrix.version = '1.18.1'
+      if: matrix.version == '1.18.1'
       with:
         path: |
           main.lcov
@@ -46,13 +46,13 @@ jobs:
     - name: Test and Bench
       run: go test -v -coverprofile coverage.out -bench -race ./...
     - uses: jandelgado/gcov2lcov-action@v1.0.5
-      if: matrix.version = '1.18.1'
+      if: matrix.version == '1.18.1'
     - name: Store main branch lcov
       if: github.ref == 'refs/heads/main'
       run: cp coverage.lcov main.lcov
     - name: Code Coverage Report
       uses: romeovs/lcov-reporter-action@v0.2.11
-      if: matrix.version = '1.18.1'
+      if: matrix.version == '1.18.1'
       with:
         lcov-file: ./coverage.lcov
         lcov-base: ./main.lcov
