@@ -29,6 +29,10 @@ go test -v -bench=. ./...
 This project is configured to use GH Actions to automatically test/benchmark the project whenever pushes occur.
 See the [.github/workflows](./.github/workflows) folder for all the details.
 
+## Contributing
+
+Contributors must sign the [Shopify CLA](https://cla.shopify.com/) before your PR can be accepted/merged.
+
 ## License
 
 hoff is released under the [MIT License](https://opensource.org/licenses/MIT).
