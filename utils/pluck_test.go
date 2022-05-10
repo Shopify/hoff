@@ -3,7 +3,9 @@ package utils
 import (
 	"crypto/rand"
 	"math/big"
+	mrand "math/rand"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -33,12 +35,13 @@ func TestPluckStringSingleKey(t *testing.T) {
 }
 
 func BenchmarkPluck(b *testing.B) {
+	slice, err := generateRandomMapUint64(100_000, 100, 1_000_000)
+	if err != nil {
+		b.Errorf("Error in generating random slice")
+	}
+
 	for n := 0; n < b.N; n++ {
-		slice, err := generateRandomMapUint64(100_000, 100, 1_000_000)
-		if err != nil {
-			b.Errorf("Error in generating random slice")
-		}
-		Pluck(slice, 1, 2, 3)
+		Pluck(slice, generateIntInRange(0, 100), generateIntInRange(0, 100), generateIntInRange(0, 100))
 	}
 }
 
@@ -56,4 +59,9 @@ func generateRandomMapUint64(elements int, keys int, max int64) ([]map[int]uint6
 		inputSlice[i] = m
 	}
 	return inputSlice, nil
+}
+
+func generateIntInRange(min int, max int) int {
+	mrand.Seed(time.Now().UnixNano())
+	return mrand.Intn(max-min+1) + min
 }
