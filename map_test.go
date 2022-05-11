@@ -231,13 +231,7 @@ func BenchmarkMapConcurrentToResults(b *testing.B) {
 	for i := range arr {
 		arr[i] = rand.Int()
 	}
-	arr[b.N/2] = 42
-	fn := func(_ context.Context, n int) (int, error) {
-		if n == 42 {
-			return 0, fmt.Errorf("%d is the answer", n)
-		}
-		return n ^ 2, nil
-	}
+	fn := func(_ context.Context, n int) (int, error) { return n ^ 2, nil }
 
 	var r Results[int]
 	for i := 0; i < b.N; i++ {
@@ -248,17 +242,11 @@ func BenchmarkMapConcurrentToResults(b *testing.B) {
 }
 
 func BenchmarkMapConcurrentError(b *testing.B) {
-	arr := make([]int, 2*benchmarkArrayLength)
+	arr := make([]int, benchmarkArrayLength)
 	for i := range arr {
 		arr[i] = rand.Int()
 	}
-	arr[b.N/2] = 42
-	fn := func(_ context.Context, n int) (int, error) {
-		if n == 42 {
-			return 0, fmt.Errorf("%d is the answer", n)
-		}
-		return n ^ 2, nil
-	}
+	fn := func(_ context.Context, n int) (int, error) { return n ^ 2, nil }
 
 	var r []int
 	var err error
