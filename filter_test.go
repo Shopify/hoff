@@ -47,9 +47,8 @@ func TestFilterStructs(t *testing.T) {
 	require.Len(t, filtered, 2)
 }
 
-type filterContextKey string
-const fooKey = filterContextKey("foo")
-const throwErrorKey = filterContextKey("throwError")
+const fooKey = contextKey("foo")
+const throwErrorKey = contextKey("throwError")
 
 func contextAwareCallbackInt(ctx context.Context, i int) bool {
 	// check whether ctx's value for "foo" is "bar" and the number is odd

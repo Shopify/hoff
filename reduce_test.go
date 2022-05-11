@@ -5,9 +5,8 @@ import (
 	"fmt"
 )
 
-type reduceContextKey string
-const multiplierKey = reduceContextKey("multiplier")
-const divisorKey = reduceContextKey("divisor")
+const multiplierKey = contextKey("multiplier")
+const divisorKey = contextKey("divisor")
 
 func sumInts(acc int, elem int, _ int) int {
 	return acc + elem

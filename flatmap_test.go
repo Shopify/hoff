@@ -25,8 +25,7 @@ var testCases = []flatMapTestCase{
 	},
 }
 
-type flatMapContextKey string
-const aKey = flatMapContextKey("key")
+const aKey = contextKey("key")
 
 func TestFlatMap(t *testing.T) {
 	for _, testCase := range testCases {
