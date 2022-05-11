@@ -1,4 +1,4 @@
-package main
+package hoff
 
 // Chunk takes an input array of T elements, and "chunks" into groups of chunkSize elements.
 // If the input array is empty, or the batchSize is 0, return an empty slice of slices.

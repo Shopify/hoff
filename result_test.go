@@ -1,4 +1,4 @@
-package main
+package hoff
 
 import (
 	"errors"
@@ -19,18 +19,24 @@ func TestResults(t *testing.T) {
 		{0, errors.New("fizz")},
 	}
 
-	t.Run("HasErrors", func(t *testing.T) {
-		require.False(t, ok.HasError())
-		require.True(t, err.HasError())
-	})
+	t.Run(
+		"HasErrors", func(t *testing.T) {
+			require.False(t, ok.HasError())
+			require.True(t, err.HasError())
+		},
+	)
 
-	t.Run("Errors", func(t *testing.T) {
-		require.Equal(t, []error{nil, nil, nil}, ok.Errors())
-		require.Equal(t, []error{nil, nil, errors.New("fizz")}, err.Errors())
-	})
+	t.Run(
+		"Errors", func(t *testing.T) {
+			require.Equal(t, []error{nil, nil, nil}, ok.Errors())
+			require.Equal(t, []error{nil, nil, errors.New("fizz")}, err.Errors())
+		},
+	)
 
-	t.Run("Values", func(t *testing.T) {
-		require.Equal(t, []int{1, 2, 3}, ok.Values())
-		require.Equal(t, []int{1, 2, 0}, err.Values())
-	})
+	t.Run(
+		"Values", func(t *testing.T) {
+			require.Equal(t, []int{1, 2, 3}, ok.Values())
+			require.Equal(t, []int{1, 2, 0}, err.Values())
+		},
+	)
 }

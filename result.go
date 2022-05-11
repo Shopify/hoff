@@ -1,4 +1,4 @@
-package main
+package hoff
 
 // Result holds a result of a concurrent operation.
 type Result[T any] struct {

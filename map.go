@@ -1,4 +1,4 @@
-package main
+package hoff
 
 import (
 	"context"
@@ -66,7 +66,10 @@ func MapConcurrentToResults[In, Out any](
 					var val Out
 					results[i] = Result[Out]{
 						Value: val,
-						Error: fmt.Errorf("MapConcurrentToResults recovered from panic while processing index %d, value %v: %v", i, elem, r),
+						Error: fmt.Errorf(
+							"MapConcurrentToResults recovered from panic while processing index %d, value %v: %v", i,
+							elem, r,
+						),
 					}
 				}
 			}()
@@ -100,7 +103,9 @@ func MapConcurrentError[In, Out any](
 			defer func() {
 				r := recover()
 				if r != nil && atomic.CompareAndSwapUint32(&shutdown, 0, 1) {
-					errs <- fmt.Errorf("MapConcurrentError recovered from panic while processing index %d, value %v: %v", i, elem, r)
+					errs <- fmt.Errorf(
+						"MapConcurrentError recovered from panic while processing index %d, value %v: %v", i, elem, r,
+					)
 				}
 			}()
 
