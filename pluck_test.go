@@ -12,6 +12,23 @@ func ExamplePluck() {
 	// Output: [[<nil>] [4]]
 }
 
+func TestPluckEmptyKeys(t *testing.T) {
+	output := Pluck(
+		[]map[string]any{
+			{"foo": 1, "bar": 2, "shop": 3},
+			{"foo": 4, "bar": 5, "shop": 6},
+		},
+	)
+	require.Equal(t, [][]any{}, output, "empty result")
+}
+
+func TestPluckEmptyMaps(t *testing.T) {
+	output := Pluck(
+		[]map[string]any{}, "foo", "bar",
+	)
+	require.Equal(t, [][]any{}, output, "empty result")
+}
+
 func TestPluckStringBasic(t *testing.T) {
 	output := Pluck(
 		[]map[string]any{
