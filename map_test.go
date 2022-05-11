@@ -73,14 +73,14 @@ func TestMapContextError(t *testing.T) {
 	})
 }
 
-func TestMapConcurrent(t *testing.T) {
+func TestMapConcurrentToResults(t *testing.T) {
 	err := errors.New("I can't even")
 
 	t.Run("success", func(t *testing.T) {
 		fn := func(ctx context.Context, val int) (string, error) {
 			return strconv.Itoa(val), nil
 		}
-		results := MapConcurrent(context.Background(), []int{1, 2, 3}, fn)
+		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
 
 		expected := Results[string]{
 			{"1", nil},
@@ -98,11 +98,11 @@ func TestMapConcurrent(t *testing.T) {
 			return strconv.Itoa(val), nil
 		}
 
-		results := MapConcurrent(context.Background(), []int{1, 2, 3}, fn)
+		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
 
 		expected := Results[string]{
 			{"1", nil},
-			{"", fmt.Errorf("MapConcurrent got an error in index 1, value 2: %w", err)},
+			{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
 			{"3", nil},
 		}
 		require.Equal(t, expected, results)
@@ -116,11 +116,11 @@ func TestMapConcurrent(t *testing.T) {
 			return strconv.Itoa(val), nil
 		}
 
-		results := MapConcurrent(context.Background(), []int{1, 2, 3}, fn)
+		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
 
 		expected := Results[string]{
 			{"1", nil},
-			{"", fmt.Errorf("MapConcurrent got an error in index 1, value 2: %w", err)},
+			{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
 			{"3", nil},
 		}
 		require.Equal(t, expected, results)
@@ -226,8 +226,8 @@ func BenchmarkMapContextError(b *testing.B) {
 	benchErr = err
 }
 
-func BenchmarkMapConcurrent(b *testing.B) {
-	arr := make([]int, 2*benchmarkArrayLength)
+func BenchmarkMapConcurrentToResults(b *testing.B) {
+	arr := make([]int, benchmarkArrayLength)
 	for i := range arr {
 		arr[i] = rand.Int()
 	}
@@ -241,7 +241,7 @@ func BenchmarkMapConcurrent(b *testing.B) {
 
 	var r Results[int]
 	for i := 0; i < b.N; i++ {
-		r = MapConcurrent(ctx, arr, fn)
+		r = MapConcurrentToResults(ctx, arr, fn)
 	}
 	benchResult = r.Values()
 	benchErr = r.Errors()[0]
@@ -335,7 +335,7 @@ func ExampleMapContextError_failure() {
 	// Output: MapContextError got an error in index 2, value 42: 42 is already the answer
 }
 
-func ExampleMapConcurrent_success() {
+func ExampleMapConcurrentToResults_success() {
 	fn := func(ctx context.Context, n int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
@@ -344,13 +344,13 @@ func ExampleMapConcurrent_success() {
 		return n, nil
 	}
 
-	results := MapConcurrent(ctx, []int{1, 2, 3}, fn)
+	results := MapConcurrentToResults(ctx, []int{1, 2, 3}, fn)
 
 	fmt.Println(results.Values())
 	// Output: [1 2 3]
 }
 
-func ExampleMapConcurrent_failure() {
+func ExampleMapConcurrentToResults_failure() {
 	fn := func(ctx context.Context, n int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
@@ -359,13 +359,13 @@ func ExampleMapConcurrent_failure() {
 		return n, nil
 	}
 
-	results := MapConcurrent(ctx, []int{1, 2, 42}, fn)
+	results := MapConcurrentToResults(ctx, []int{1, 2, 42}, fn)
 
 	fmt.Println(results.Errors())
-	// Output: [<nil> <nil> MapConcurrent got an error in index 2, value 42: 42 is already the answer]
+	// Output: [<nil> <nil> MapConcurrentToResults got an error in index 2, value 42: 42 is already the answer]
 }
 
-func ExampleMapConcurrent_panic() {
+func ExampleMapConcurrentToResults_panic() {
 	fn := func(ctx context.Context, n int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
@@ -374,10 +374,10 @@ func ExampleMapConcurrent_panic() {
 		return n, nil
 	}
 
-	results := MapConcurrent(ctx, []int{1, 2, 42}, fn)
+	results := MapConcurrentToResults(ctx, []int{1, 2, 42}, fn)
 
 	fmt.Println(results.Errors())
-	// Output: [<nil> <nil> MapConcurrent recovered from panic while processing index 2, value 42: 42 is already the answer]
+	// Output: [<nil> <nil> MapConcurrentToResults recovered from panic while processing index 2, value 42: 42 is already the answer]
 }
 
 func ExampleMapConcurrentError_success() {

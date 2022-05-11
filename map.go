@@ -46,9 +46,10 @@ func MapContextError[In, Out any](
 	return out, nil
 }
 
-// MapConcurrent is the same as `MapContextError` but applied with concurrency.
-// In spite of concurency, order is guaranteed.
-func MapConcurrent[In, Out any](
+// MapConcurrentToResults is the same as `MapContextError` but applied with concurrency.
+// It returns an slice of results, each one containing the value and the error
+// if any. In spite of concurrency, order is guaranteed.
+func MapConcurrentToResults[In, Out any](
 	ctx context.Context,
 	arr []In,
 	fn func(ctx context.Context, elem In) (Out, error),
@@ -65,14 +66,14 @@ func MapConcurrent[In, Out any](
 					var val Out
 					results[i] = Result[Out]{
 						Value: val,
-						Error: fmt.Errorf("MapConcurrent recovered from panic while processing index %d, value %v: %v", i, elem, r),
+						Error: fmt.Errorf("MapConcurrentToResults recovered from panic while processing index %d, value %v: %v", i, elem, r),
 					}
 				}
 			}()
 
 			val, err := fn(ctx, elem)
 			if err != nil {
-				err = fmt.Errorf("MapConcurrent got an error in index %d, value %v: %w", i, elem, err)
+				err = fmt.Errorf("MapConcurrentToResults got an error in index %d, value %v: %w", i, elem, err)
 			}
 			results[i] = Result[Out]{val, err}
 		}(ctx, t, i)
