@@ -1,4 +1,4 @@
-package main
+package hoff
 
 import (
 	"context"
@@ -11,8 +11,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 )
-
-type contextKey string
 
 const (
 	ctxKey               = contextKey("answer")
@@ -38,17 +36,21 @@ func TestMapError(t *testing.T) {
 		return n, nil
 	}
 
-	t.Run("success", func(t *testing.T) {
-		results, err := MapError([]int{1, 2, 3}, fn)
-		require.NoError(t, err)
-		require.Equal(t, []int{1, 2, 3}, results)
-	})
+	t.Run(
+		"success", func(t *testing.T) {
+			results, err := MapError([]int{1, 2, 3}, fn)
+			require.NoError(t, err)
+			require.Equal(t, []int{1, 2, 3}, results)
+		},
+	)
 
-	t.Run("failure", func(t *testing.T) {
-		results, err := MapError([]int{2, 3, 4}, fn)
-		require.Error(t, err)
-		require.Nil(t, results)
-	})
+	t.Run(
+		"failure", func(t *testing.T) {
+			results, err := MapError([]int{2, 3, 4}, fn)
+			require.Error(t, err)
+			require.Nil(t, results)
+		},
+	)
 }
 
 func TestMapContextError(t *testing.T) {
@@ -60,114 +62,130 @@ func TestMapContextError(t *testing.T) {
 		return n, nil
 	}
 
-	t.Run("success", func(t *testing.T) {
-		results, err := MapContextError(ctx, []int{1, 2, 3}, fn)
-		require.NoError(t, err)
-		require.Equal(t, results, []int{1, 2, 3})
-	})
+	t.Run(
+		"success", func(t *testing.T) {
+			results, err := MapContextError(ctx, []int{1, 2, 3}, fn)
+			require.NoError(t, err)
+			require.Equal(t, results, []int{1, 2, 3})
+		},
+	)
 
-	t.Run("failure", func(t *testing.T) {
-		results, err := MapContextError(ctx, []int{1, 2, 42}, fn)
-		require.Error(t, err)
-		require.Nil(t, results)
-	})
+	t.Run(
+		"failure", func(t *testing.T) {
+			results, err := MapContextError(ctx, []int{1, 2, 42}, fn)
+			require.Error(t, err)
+			require.Nil(t, results)
+		},
+	)
 }
 
 func TestMapConcurrentToResults(t *testing.T) {
 	err := errors.New("I can't even")
 
-	t.Run("success", func(t *testing.T) {
-		fn := func(ctx context.Context, val int) (string, error) {
-			return strconv.Itoa(val), nil
-		}
-		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
-
-		expected := Results[string]{
-			{"1", nil},
-			{"2", nil},
-			{"3", nil},
-		}
-		require.Equal(t, expected, results)
-	})
-
-	t.Run("failure", func(t *testing.T) {
-		fn := func(ctx context.Context, val int) (string, error) {
-			if val == 2 {
-				return "", err
+	t.Run(
+		"success", func(t *testing.T) {
+			fn := func(ctx context.Context, val int) (string, error) {
+				return strconv.Itoa(val), nil
 			}
-			return strconv.Itoa(val), nil
-		}
+			results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
 
-		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
-
-		expected := Results[string]{
-			{"1", nil},
-			{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
-			{"3", nil},
-		}
-		require.Equal(t, expected, results)
-	})
-
-	t.Run("panic", func(t *testing.T) {
-		fn := func(ctx context.Context, val int) (string, error) {
-			if val == 2 {
-				return "", err
+			expected := Results[string]{
+				{"1", nil},
+				{"2", nil},
+				{"3", nil},
 			}
-			return strconv.Itoa(val), nil
-		}
+			require.Equal(t, expected, results)
+		},
+	)
 
-		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
+	t.Run(
+		"failure", func(t *testing.T) {
+			fn := func(ctx context.Context, val int) (string, error) {
+				if val == 2 {
+					return "", err
+				}
+				return strconv.Itoa(val), nil
+			}
 
-		expected := Results[string]{
-			{"1", nil},
-			{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
-			{"3", nil},
-		}
-		require.Equal(t, expected, results)
-	})
+			results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
+
+			expected := Results[string]{
+				{"1", nil},
+				{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
+				{"3", nil},
+			}
+			require.Equal(t, expected, results)
+		},
+	)
+
+	t.Run(
+		"panic", func(t *testing.T) {
+			fn := func(ctx context.Context, val int) (string, error) {
+				if val == 2 {
+					return "", err
+				}
+				return strconv.Itoa(val), nil
+			}
+
+			results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
+
+			expected := Results[string]{
+				{"1", nil},
+				{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
+				{"3", nil},
+			}
+			require.Equal(t, expected, results)
+		},
+	)
 }
 
 func TestMapConcurrentError(t *testing.T) {
 	err := errors.New("I can't even")
 
-	t.Run("success", func(t *testing.T) {
-		fn := func(ctx context.Context, val int) (string, error) {
-			return strconv.Itoa(val), nil
-		}
-		results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
-
-		require.Equal(t, []string{"1", "2", "3"}, results)
-		require.Nil(t, err)
-	})
-
-	t.Run("failure", func(t *testing.T) {
-		fn := func(ctx context.Context, val int) (string, error) {
-			if val == 2 {
-				return "", err
+	t.Run(
+		"success", func(t *testing.T) {
+			fn := func(ctx context.Context, val int) (string, error) {
+				return strconv.Itoa(val), nil
 			}
-			return strconv.Itoa(val), nil
-		}
+			results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
 
-		results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
+			require.Equal(t, []string{"1", "2", "3"}, results)
+			require.Nil(t, err)
+		},
+	)
 
-		require.Error(t, err)
-		require.Nil(t, results)
-	})
-
-	t.Run("panic", func(t *testing.T) {
-		err := errors.New("I can't even")
-		fn := func(ctx context.Context, val int) (string, error) {
-			if val == 2 {
-				return "", err
+	t.Run(
+		"failure", func(t *testing.T) {
+			fn := func(ctx context.Context, val int) (string, error) {
+				if val == 2 {
+					return "", err
+				}
+				return strconv.Itoa(val), nil
 			}
-			return strconv.Itoa(val), nil
-		}
 
-		results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
+			results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
 
-		require.Error(t, err)
-		require.Nil(t, results)
-	})
+			require.Error(t, err)
+			require.Nil(t, results)
+		},
+	)
+
+	t.Run(
+		"panic", func(t *testing.T) {
+			err := errors.New("I can't even")
+			fn := func(ctx context.Context, val int) (string, error) {
+				if val == 2 {
+					return "", err
+				}
+				return strconv.Itoa(val), nil
+			}
+
+			results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
+
+			require.Error(t, err)
+			require.Nil(t, results)
+		},
+	)
 }
 
 func BenchmarkMap(b *testing.B) {

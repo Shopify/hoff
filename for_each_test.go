@@ -1,4 +1,4 @@
-package utils
+package hoff
 
 import (
 	"context"
@@ -27,7 +27,7 @@ func TestForEach(t *testing.T) {
 	for _, testCase := range forEachTestCases {
 		// foreach does not return a value, so we need to test
 		// that the receiver function gets called by pushing each value to an array.
-		var stringSlice = []string{}
+		var stringSlice = make([]string, 0, len(testCase.In))
 		fn := func(s string) {
 			stringSlice = append(stringSlice, s)
 		}
@@ -44,7 +44,7 @@ func TestForEachContext(t *testing.T) {
 	for _, testCase := range forEachTestCases {
 		// foreach does not return a value, so we need to test
 		// that the receiver function gets called by pushing each value to an array.
-		var stringSlice = []string{}
+		var stringSlice = make([]string, 0, len(testCase.In))
 		fn := func(c context.Context, s string) {
 			require.Equal(t, "a_value", c.Value(key))
 			stringSlice = append(stringSlice, s)
