@@ -1,4 +1,4 @@
-package utils
+package main
 
 import (
 	"context"
@@ -24,8 +24,6 @@ var testCases = []flatMapTestCase{
 		out: []string{"a", "b", "c", "d", "e", "f", "g"},
 	},
 }
-
-type contextKey string
 
 var key = contextKey("key")
 
@@ -70,7 +68,7 @@ func TestFlatMapErrorFails(t *testing.T) {
 func ExampleFlatMapError() {
 	properPrefixes := func(s string) ([]string, error) {
 		if len(s) < 2 {
-			return nil, fmt.Errorf("String '%s' has no proper prefixes", s)
+			return nil, fmt.Errorf("string '%s' has no proper prefixes", s)
 		}
 
 		res := make([]string, len(s)-1)
@@ -88,7 +86,7 @@ func ExampleFlatMapError() {
 	fmt.Println(err)
 	// Output:
 	// [a ab abc e ef]
-	// String 'x' has no proper prefixes
+	// string 'x' has no proper prefixes
 }
 
 func BenchmarkFlatMapError(b *testing.B) {
@@ -139,18 +137,18 @@ func splitString(s string) []string {
 
 func splitStringWithError(s string) ([]string, error) {
 	if len(s) < 4 {
-		return nil, fmt.Errorf("String '%s' too short", s)
+		return nil, fmt.Errorf("string '%s' too short", s)
 	}
 	return strings.Split(s, ""), nil
 }
 
 func splitStringWithContextAndError(ctx context.Context, s string) ([]string, error) {
 	if ctx.Value(key) != "a_value" {
-		return nil, fmt.Errorf("Context values not received")
+		return nil, fmt.Errorf("context values not received")
 	}
 
 	if len(s) < 4 {
-		return nil, fmt.Errorf("String '%s' too short", s)
+		return nil, fmt.Errorf("string '%s' too short", s)
 	}
 	return strings.Split(s, ""), nil
 }

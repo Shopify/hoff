@@ -1,4 +1,4 @@
-package utils
+package main
 
 func Fill[T any](t T, num int) []T {
 	out := make([]T, 0, num)
