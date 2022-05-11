@@ -49,11 +49,11 @@ jobs:
     - uses: jandelgado/gcov2lcov-action@v1.0.5
       if: matrix.version == '1.18.1'
     - name: Store main branch lcov
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/main' && matrix.version == '1.18.1'
       run: cp coverage.lcov main.lcov
     - name: Code Coverage Report
       uses: osmind-development-org/lcov-reporter-action@v0.3.2
-      if: matrix.version == '1.18.1'
+      if: matrix.version == '1.18.1' && github.event_name == 'pull_request'
       with:
         lcov-file: ./coverage.lcov
         lcov-base: ./main.lcov
