@@ -29,32 +29,28 @@ func TestMap(t *testing.T) {
 }
 
 func TestMapError(t *testing.T) {
-	fn := func(n int) (int, error) {
+	fn := func(n, _ int) (int, error) {
 		if n > 3 {
 			return 0, fmt.Errorf("%d is greater than 3", n)
 		}
 		return n, nil
 	}
 
-	t.Run(
-		"success", func(t *testing.T) {
-			results, err := MapError([]int{1, 2, 3}, fn)
-			require.NoError(t, err)
-			require.Equal(t, []int{1, 2, 3}, results)
-		},
-	)
+	t.Run("success", func(t *testing.T) {
+		results, err := MapError([]int{1, 2, 3}, fn)
+		require.NoError(t, err)
+		require.Equal(t, []int{1, 2, 3}, results)
+	})
 
-	t.Run(
-		"failure", func(t *testing.T) {
-			results, err := MapError([]int{2, 3, 4}, fn)
-			require.Error(t, err)
-			require.Nil(t, results)
-		},
-	)
+	t.Run("failure", func(t *testing.T) {
+		results, err := MapError([]int{2, 3, 4}, fn)
+		require.Error(t, err)
+		require.Nil(t, results)
+	})
 }
 
 func TestMapContextError(t *testing.T) {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			return 0, fmt.Errorf("%d is already the answer", n)
@@ -62,130 +58,114 @@ func TestMapContextError(t *testing.T) {
 		return n, nil
 	}
 
-	t.Run(
-		"success", func(t *testing.T) {
-			results, err := MapContextError(ctx, []int{1, 2, 3}, fn)
-			require.NoError(t, err)
-			require.Equal(t, results, []int{1, 2, 3})
-		},
-	)
+	t.Run("success", func(t *testing.T) {
+		results, err := MapContextError(ctx, []int{1, 2, 3}, fn)
+		require.NoError(t, err)
+		require.Equal(t, results, []int{1, 2, 3})
+	})
 
-	t.Run(
-		"failure", func(t *testing.T) {
-			results, err := MapContextError(ctx, []int{1, 2, 42}, fn)
-			require.Error(t, err)
-			require.Nil(t, results)
-		},
-	)
+	t.Run("failure", func(t *testing.T) {
+		results, err := MapContextError(ctx, []int{1, 2, 42}, fn)
+		require.Error(t, err)
+		require.Nil(t, results)
+	})
 }
 
 func TestMapConcurrentToResults(t *testing.T) {
 	err := errors.New("I can't even")
 
-	t.Run(
-		"success", func(t *testing.T) {
-			fn := func(ctx context.Context, val int) (string, error) {
-				return strconv.Itoa(val), nil
+	t.Run("success", func(t *testing.T) {
+		fn := func(ctx context.Context, n, _ int) (string, error) {
+			return strconv.Itoa(n), nil
+		}
+		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
+
+		expected := Results[string]{
+			{"1", nil},
+			{"2", nil},
+			{"3", nil},
+		}
+		require.Equal(t, expected, results)
+	})
+
+	t.Run("failure", func(t *testing.T) {
+		fn := func(ctx context.Context, n, _ int) (string, error) {
+			if n == 2 {
+				return "", err
 			}
-			results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
+			return strconv.Itoa(n), nil
+		}
 
-			expected := Results[string]{
-				{"1", nil},
-				{"2", nil},
-				{"3", nil},
+		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
+
+		expected := Results[string]{
+			{"1", nil},
+			{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
+			{"3", nil},
+		}
+		require.Equal(t, expected, results)
+	})
+
+	t.Run("panic", func(t *testing.T) {
+		fn := func(ctx context.Context, n, _ int) (string, error) {
+			if n == 2 {
+				return "", err
 			}
-			require.Equal(t, expected, results)
-		},
-	)
+			return strconv.Itoa(n), nil
+		}
 
-	t.Run(
-		"failure", func(t *testing.T) {
-			fn := func(ctx context.Context, val int) (string, error) {
-				if val == 2 {
-					return "", err
-				}
-				return strconv.Itoa(val), nil
-			}
+		results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
 
-			results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
-
-			expected := Results[string]{
-				{"1", nil},
-				{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
-				{"3", nil},
-			}
-			require.Equal(t, expected, results)
-		},
-	)
-
-	t.Run(
-		"panic", func(t *testing.T) {
-			fn := func(ctx context.Context, val int) (string, error) {
-				if val == 2 {
-					return "", err
-				}
-				return strconv.Itoa(val), nil
-			}
-
-			results := MapConcurrentToResults(context.Background(), []int{1, 2, 3}, fn)
-
-			expected := Results[string]{
-				{"1", nil},
-				{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
-				{"3", nil},
-			}
-			require.Equal(t, expected, results)
-		},
-	)
+		expected := Results[string]{
+			{"1", nil},
+			{"", fmt.Errorf("MapConcurrentToResults got an error in index 1, value 2: %w", err)},
+			{"3", nil},
+		}
+		require.Equal(t, expected, results)
+	})
 }
 
 func TestMapConcurrentError(t *testing.T) {
 	err := errors.New("I can't even")
 
-	t.Run(
-		"success", func(t *testing.T) {
-			fn := func(ctx context.Context, val int) (string, error) {
-				return strconv.Itoa(val), nil
+	t.Run("success", func(t *testing.T) {
+		fn := func(ctx context.Context, n, _ int) (string, error) {
+			return strconv.Itoa(n), nil
+		}
+		results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
+
+		require.Equal(t, []string{"1", "2", "3"}, results)
+		require.Nil(t, err)
+	})
+
+	t.Run("failure", func(t *testing.T) {
+		fn := func(ctx context.Context, n, _ int) (string, error) {
+			if n == 2 {
+				return "", err
 			}
-			results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
+			return strconv.Itoa(n), nil
+		}
 
-			require.Equal(t, []string{"1", "2", "3"}, results)
-			require.Nil(t, err)
-		},
-	)
+		results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
 
-	t.Run(
-		"failure", func(t *testing.T) {
-			fn := func(ctx context.Context, val int) (string, error) {
-				if val == 2 {
-					return "", err
-				}
-				return strconv.Itoa(val), nil
+		require.Error(t, err)
+		require.Nil(t, results)
+	})
+
+	t.Run("panic", func(t *testing.T) {
+		err := errors.New("I can't even")
+		fn := func(ctx context.Context, n, _ int) (string, error) {
+			if n == 2 {
+				return "", err
 			}
+			return strconv.Itoa(n), nil
+		}
 
-			results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
+		results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
 
-			require.Error(t, err)
-			require.Nil(t, results)
-		},
-	)
-
-	t.Run(
-		"panic", func(t *testing.T) {
-			err := errors.New("I can't even")
-			fn := func(ctx context.Context, val int) (string, error) {
-				if val == 2 {
-					return "", err
-				}
-				return strconv.Itoa(val), nil
-			}
-
-			results, err := MapConcurrentError(context.Background(), []int{1, 2, 3}, fn)
-
-			require.Error(t, err)
-			require.Nil(t, results)
-		},
-	)
+		require.Error(t, err)
+		require.Nil(t, results)
+	})
 }
 
 func BenchmarkMap(b *testing.B) {
@@ -207,7 +187,7 @@ func BenchmarkMapError(b *testing.B) {
 	for i := range arr {
 		arr[i] = rand.Int()
 	}
-	fn := func(n int) (int, error) {
+	fn := func(n, _ int) (int, error) {
 		if n%2 != 0 {
 			return 0, fmt.Errorf("i can't even")
 		}
@@ -228,7 +208,7 @@ func BenchmarkMapContextError(b *testing.B) {
 	for i := range arr {
 		arr[i] = rand.Int()
 	}
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		if n == ctx.Value(ctxKey).(int) {
 			return 0, fmt.Errorf("%d is not the answer", n)
 		}
@@ -249,7 +229,7 @@ func BenchmarkMapConcurrentToResults(b *testing.B) {
 	for i := range arr {
 		arr[i] = rand.Int()
 	}
-	fn := func(_ context.Context, n int) (int, error) { return n ^ 2, nil }
+	fn := func(_ context.Context, n, _ int) (int, error) { return n ^ 2, nil }
 
 	var r Results[int]
 	for i := 0; i < b.N; i++ {
@@ -264,7 +244,7 @@ func BenchmarkMapConcurrentError(b *testing.B) {
 	for i := range arr {
 		arr[i] = rand.Int()
 	}
-	fn := func(_ context.Context, n int) (int, error) { return n ^ 2, nil }
+	fn := func(_ context.Context, n, _ int) (int, error) { return n ^ 2, nil }
 
 	var r []int
 	var err error
@@ -284,7 +264,7 @@ func ExampleMap() {
 }
 
 func ExampleMapError_success() {
-	fn := func(n int) (int, error) {
+	fn := func(n, _ int) (int, error) {
 		if n > 3 {
 			return 0, fmt.Errorf("%d is greater than 3", n)
 		}
@@ -298,7 +278,7 @@ func ExampleMapError_success() {
 }
 
 func ExampleMapError_failure() {
-	fn := func(n int) (int, error) {
+	fn := func(n, _ int) (int, error) {
 		if n > 3 {
 			return 0, fmt.Errorf("%d is greater than 3", n)
 		}
@@ -312,7 +292,7 @@ func ExampleMapError_failure() {
 }
 
 func ExampleMapContextError_success() {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			return 0, fmt.Errorf("%d is already the answer", n)
@@ -327,7 +307,7 @@ func ExampleMapContextError_success() {
 }
 
 func ExampleMapContextError_failure() {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			return 0, fmt.Errorf("%d is already the answer", n)
@@ -342,7 +322,7 @@ func ExampleMapContextError_failure() {
 }
 
 func ExampleMapConcurrentToResults_success() {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			return 0, fmt.Errorf("%d is already the answer", n)
@@ -357,7 +337,7 @@ func ExampleMapConcurrentToResults_success() {
 }
 
 func ExampleMapConcurrentToResults_failure() {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			return 0, fmt.Errorf("%d is already the answer", n)
@@ -372,7 +352,7 @@ func ExampleMapConcurrentToResults_failure() {
 }
 
 func ExampleMapConcurrentToResults_panic() {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			panic(fmt.Sprintf("%d is already the answer", n))
@@ -387,7 +367,7 @@ func ExampleMapConcurrentToResults_panic() {
 }
 
 func ExampleMapConcurrentError_success() {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			return 0, fmt.Errorf("%d is already the answer", n)
@@ -402,7 +382,7 @@ func ExampleMapConcurrentError_success() {
 }
 
 func ExampleMapConcurrentError_failure() {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			return 0, fmt.Errorf("%d is already the answer", n)
@@ -417,7 +397,7 @@ func ExampleMapConcurrentError_failure() {
 }
 
 func ExampleMapConcurrentError_panic() {
-	fn := func(ctx context.Context, n int) (int, error) {
+	fn := func(ctx context.Context, n, _ int) (int, error) {
 		diff := ctx.Value(ctxKey).(int) - n
 		if diff == 0 {
 			panic(fmt.Sprintf("%d is already the answer", n))
