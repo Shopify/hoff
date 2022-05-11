@@ -33,6 +33,7 @@ Contributors must sign the [Shopify CLA](https://cla.shopify.com/) before your P
 ## Authors
 
 - [Chris Pappas](https://github.com/chrispappas)
+- [Eduardo Cuducos](https://github.com/cuducos)
 - Please add a commit with however you want to be credited!!
 
 ## License
