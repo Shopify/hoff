@@ -59,3 +59,9 @@ jobs:
         lcov-base: ./main.lcov
         delete-old-comments: true
         github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Static check
+      if: matrix.version == '1.18.1' 
+      run: |
+        go install honnef.co/go/tools/cmd/staticcheck@latest
+         $(go env GOPATH)/bin/staticcheck ./...
+
