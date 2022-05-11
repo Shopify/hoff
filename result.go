@@ -9,7 +9,7 @@ type Result[T any] struct {
 // Results hold a sequence concurrent operation results in order.
 type Results[T any] []Result[T]
 
-// Error returns whether the sequence of results has any errors.
+// HasError returns whether the sequence of results has any errors.
 func (rs Results[T]) HasError() bool {
 	for _, r := range rs {
 		if r.Error != nil {
