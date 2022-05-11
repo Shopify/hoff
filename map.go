@@ -17,10 +17,10 @@ func Map[In, Out any](arr []In, fn func(In) Out) []Out {
 }
 
 // MapError is the same as `Map` but for functions that might return an error.
-func MapError[In, Out any](arr []In, fn func(In) (Out, error)) ([]Out, error) {
+func MapError[In, Out any](arr []In, fn func(In, int) (Out, error)) ([]Out, error) {
 	out := make([]Out, 0, len(arr))
 	for i, elem := range arr {
-		mapped, err := fn(elem)
+		mapped, err := fn(elem, i)
 		if err != nil {
 			return nil, fmt.Errorf("MapError got an error in index %d, value %v: %w", i, elem, err)
 		}
@@ -33,11 +33,11 @@ func MapError[In, Out any](arr []In, fn func(In) (Out, error)) ([]Out, error) {
 func MapContextError[In, Out any](
 	ctx context.Context,
 	arr []In,
-	fn func(context.Context, In) (Out, error),
+	fn func(context.Context, In, int) (Out, error),
 ) ([]Out, error) {
 	out := make([]Out, 0, len(arr))
 	for i, elem := range arr {
-		mapped, err := fn(ctx, elem)
+		mapped, err := fn(ctx, elem, i)
 		if err != nil {
 			return nil, fmt.Errorf("MapContextError got an error in index %d, value %v: %w", i, elem, err)
 		}
@@ -52,7 +52,7 @@ func MapContextError[In, Out any](
 func MapConcurrentToResults[In, Out any](
 	ctx context.Context,
 	arr []In,
-	fn func(ctx context.Context, elem In) (Out, error),
+	fn func(context.Context, In, int) (Out, error),
 ) Results[Out] {
 	results := make(Results[Out], len(arr))
 	var wg sync.WaitGroup
@@ -74,7 +74,7 @@ func MapConcurrentToResults[In, Out any](
 				}
 			}()
 
-			val, err := fn(ctx, elem)
+			val, err := fn(ctx, elem, i)
 			if err != nil {
 				err = fmt.Errorf("MapConcurrentToResults got an error in index %d, value %v: %w", i, elem, err)
 			}
@@ -91,7 +91,7 @@ func MapConcurrentToResults[In, Out any](
 func MapConcurrentError[In, Out any](
 	ctx context.Context,
 	arr []In,
-	fn func(ctx context.Context, elem In) (Out, error),
+	fn func(context.Context, In, int) (Out, error),
 ) ([]Out, error) {
 	results := make([]Out, len(arr))
 	errs := make(chan error)
@@ -109,7 +109,7 @@ func MapConcurrentError[In, Out any](
 				}
 			}()
 
-			r, err := fn(ctx, elem)
+			r, err := fn(ctx, elem, i)
 			if err != nil && atomic.CompareAndSwapUint32(&shutdown, 0, 1) {
 				errs <- fmt.Errorf("MapConcurrentError got an error in index %d, value %v: %w", i, elem, err)
 			}
