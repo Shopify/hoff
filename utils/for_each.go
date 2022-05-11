@@ -1,6 +1,8 @@
 package utils
 
-import "context"
+import (
+	"context"
+)
 
 func ForEach[T any](arr []T, fn func(T)) {
 	for _, elem := range arr {
