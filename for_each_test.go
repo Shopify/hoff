@@ -2,6 +2,7 @@ package hoff
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -54,4 +55,40 @@ func TestForEachContext(t *testing.T) {
 		ForEachContext(ctx, testCase.In, fn)
 		require.Equal(t, testCase.Out, stringSlice)
 	}
+}
+
+func TestForEachContextError(t *testing.T) {
+	type contextKey string
+	var key = contextKey("key")
+	input := []string{"aaa", "bbb"}
+
+	var calledInputs = make([]string, 0, len(input))
+	fn := func(c context.Context, s string) error {
+		require.Equal(t, "a_value", c.Value(key))
+		calledInputs = append(calledInputs, s)
+		return nil
+	}
+	ctx := context.WithValue(context.Background(), key, "a_value")
+
+	err := ForEachContextError(ctx, input, fn)
+	require.Nil(t, err)
+	require.Equal(t, input, calledInputs)
+}
+
+func TestForEachContextErrorWithError(t *testing.T) {
+	type contextKey string
+	var key = contextKey("key")
+	input := []string{"aaa", "bbb"}
+
+	var calledInputs = make([]string, 0, len(input))
+	fn := func(c context.Context, s string) error {
+		require.Equal(t, "a_value", c.Value(key))
+		calledInputs = append(calledInputs, s)
+		return errors.New("catastrophic error")
+	}
+	ctx := context.WithValue(context.Background(), key, "a_value")
+
+	err := ForEachContextError(ctx, input, fn)
+	require.ErrorContains(t, err, "catastrophic error")
+	require.Equal(t, input[0:1], calledInputs) // only first fn was called beacuse it return error
 }
