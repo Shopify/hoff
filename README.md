@@ -32,11 +32,12 @@ Contributors must sign the [Shopify CLA](https://cla.shopify.com/) before your P
 
 ## Authors
 
-- [Chris Pappas](https://github.com/chrispappas)
-- [Eduardo Cuducos](https://github.com/cuducos)
-- [Jade Ornelas](https://github.com/yknx4)
+- [Whesley Barnard](https://github.com/whesleybarnard)
 - [Paco Castro](https://github.com/pacocastrotech)
-- Please add a commit with however you want to be credited!!
+- [Eduardo Cuducos](https://github.com/cuducos)
+- [Chris Langager](https://github.com/chris-langager)
+- [Jade Ornelas](https://github.com/yknx4)
+- [Chris Pappas](https://github.com/chrispappas)
 
 ## License
 
