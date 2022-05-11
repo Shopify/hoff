@@ -47,13 +47,17 @@ func TestFilterStructs(t *testing.T) {
 	require.Len(t, filtered, 2)
 }
 
+type filterContextKey string
+const fooKey = filterContextKey("foo")
+const throwErrorKey = filterContextKey("throwError")
+
 func contextAwareCallbackInt(ctx context.Context, i int) bool {
 	// check whether ctx's value for "foo" is "bar" and the number is odd
-	return ctx.Value("foo") == "bar" && i%2 == 1
+	return ctx.Value(fooKey) == "bar" && i%2 == 1
 }
 
 func TestFilterContext(t *testing.T) {
-	ctx := context.WithValue(context.Background(), "foo", "bar")
+	ctx := context.WithValue(context.Background(), fooKey, "bar")
 	ints := []int{1, 2, 3}
 	filtered := FilterContext(ctx, ints, contextAwareCallbackInt)
 	require.ElementsMatch(t, filtered, []int{1, 3})
@@ -63,7 +67,7 @@ func TestFilterContext(t *testing.T) {
 	// should not match anything since the context doesn't have a value for "foo"
 	require.Len(t, filtered, 0)
 
-	ctx3 := context.WithValue(context.Background(), "foo", "nada")
+	ctx3 := context.WithValue(context.Background(), fooKey, "nada")
 	filtered = FilterContext(ctx3, ints, contextAwareCallbackInt)
 	// should not match anything since the context "foo" value is not "bar"
 	require.Len(t, filtered, 0)
@@ -102,15 +106,15 @@ func TestFilterError(t *testing.T) {
 }
 
 func contextErrorAwareCallbackInt(ctx context.Context, i int) (bool, error) {
-	if ctx.Value("throwError") == true {
+	if ctx.Value(throwErrorKey) == true {
 		return false, fmt.Errorf("throwError true")
 	}
 	// check whether ctx's value for "foo" is "bar" and the number is odd
-	return ctx.Value("foo") == "bar" && i%2 == 1, nil
+	return ctx.Value(fooKey) == "bar" && i%2 == 1, nil
 }
 
 func TestFilterContextError(t *testing.T) {
-	ctx := context.WithValue(context.Background(), "foo", "bar")
+	ctx := context.WithValue(context.Background(), fooKey, "bar")
 	ints := []int{1, 2, 3}
 	filtered, err := FilterContextError(ctx, ints, contextErrorAwareCallbackInt)
 	require.NoError(t, err)
@@ -123,7 +127,7 @@ func TestFilterContextError(t *testing.T) {
 	require.Len(t, filtered, 0)
 
 	// create a context with foo = bar AND throwError = true
-	ctx3 := context.WithValue(context.Background(), "throwError", true)
+	ctx3 := context.WithValue(context.Background(), throwErrorKey, true)
 	filtered, err = FilterContextError(ctx3, ints, contextErrorAwareCallbackInt)
 	// should throw an error
 	require.Error(t, err)

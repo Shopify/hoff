@@ -5,6 +5,10 @@ import (
 	"fmt"
 )
 
+type reduceContextKey string
+const multiplierKey = reduceContextKey("multiplier")
+const divisorKey = reduceContextKey("divisor")
+
 func sumInts(acc int, elem int, _ int) int {
 	return acc + elem
 }
@@ -17,12 +21,12 @@ func sumIntsError(acc int, elem int, _ int) (int, error) {
 }
 
 func sumIntsCtxMultiplier(ctx context.Context, acc int, elem int, _ int) int {
-	m := ctx.Value("multiplier").(int)
+	m := ctx.Value(multiplierKey).(int)
 	return acc + (elem * m)
 }
 
 func sumIntsCtxDividerError(ctx context.Context, acc int, elem int, _ int) (int, error) {
-	m := ctx.Value("divisor").(int)
+	m := ctx.Value(divisorKey).(int)
 	if m == 0 {
 		return acc, fmt.Errorf("division by zero")
 	}
@@ -49,21 +53,21 @@ func ExampleReduceError_error() {
 }
 
 func ExampleReduceContext() {
-	ctx := context.WithValue(context.Background(), "multiplier", 2)
+	ctx := context.WithValue(context.Background(), multiplierKey, 2)
 	a := []int{1, 2, 3, 4, 5}
 	fmt.Println(ReduceContext(ctx, a, sumIntsCtxMultiplier, 0))
 	// Output: 30
 }
 
 func ExampleReduceContextError() {
-	ctx := context.WithValue(context.Background(), "divisor", 2)
+	ctx := context.WithValue(context.Background(), divisorKey, 2)
 	a := []int{2, 4, 6}
 	fmt.Println(ReduceContextError(ctx, a, sumIntsCtxDividerError, 0))
 	// Output: 6 <nil>
 }
 
 func ExampleReduceContextError_error() {
-	ctx := context.WithValue(context.Background(), "divisor", 0)
+	ctx := context.WithValue(context.Background(), divisorKey, 0)
 	a := []int{2, 4, 6}
 	fmt.Println(ReduceContextError(ctx, a, sumIntsCtxDividerError, 0))
 	// Output: 0 division by zero

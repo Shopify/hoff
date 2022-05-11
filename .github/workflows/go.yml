@@ -60,8 +60,8 @@ jobs:
         delete-old-comments: true
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Static check
-      if: matrix.version == '1.18.1' && github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request'
       run: |
-        go install honnef.co/go/tools/cmd/staticcheck@latest
+        go install honnef.co/go/tools/cmd/staticcheck@v0.3.1
         $(go env GOPATH)/bin/staticcheck ./...
 

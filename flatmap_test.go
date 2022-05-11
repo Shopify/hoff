@@ -25,7 +25,8 @@ var testCases = []flatMapTestCase{
 	},
 }
 
-var key = contextKey("key")
+type flatMapContextKey string
+const aKey = flatMapContextKey("key")
 
 func TestFlatMap(t *testing.T) {
 	for _, testCase := range testCases {
@@ -101,11 +102,11 @@ func BenchmarkFlatMapError(b *testing.B) {
 
 func TestFlatMapContext(t *testing.T) {
 	fn := func(c context.Context, s string) []string {
-		require.Equal(t, "a_value", c.Value(key))
+		require.Equal(t, "a_value", c.Value(aKey))
 
 		return splitString(s)
 	}
-	ctx := context.WithValue(context.Background(), key, "a_value")
+	ctx := context.WithValue(context.Background(), aKey, "a_value")
 
 	for _, testCase := range testCases {
 		out := FlatMapContext(ctx, testCase.in, fn)
@@ -114,7 +115,7 @@ func TestFlatMapContext(t *testing.T) {
 }
 
 func TestFlatMapContextErrorSucceeds(t *testing.T) {
-	ctx := context.WithValue(context.Background(), key, "a_value")
+	ctx := context.WithValue(context.Background(), aKey, "a_value")
 
 	out, err := FlatMapContextError(ctx, testCases[0].in, splitStringWithContextAndError)
 
@@ -123,7 +124,7 @@ func TestFlatMapContextErrorSucceeds(t *testing.T) {
 }
 
 func TestFlatMapContextErrorFails(t *testing.T) {
-	ctx := context.WithValue(context.Background(), key, "a_value")
+	ctx := context.WithValue(context.Background(), aKey, "a_value")
 
 	out, err := FlatMapContextError(ctx, testCases[1].in, splitStringWithContextAndError)
 
@@ -143,8 +144,8 @@ func splitStringWithError(s string) ([]string, error) {
 }
 
 func splitStringWithContextAndError(ctx context.Context, s string) ([]string, error) {
-	if ctx.Value(key) != "a_value" {
-		return nil, fmt.Errorf("context values not received")
+	if ctx.Value(aKey) != "a_value" {
+		return nil, fmt.Errorf("Context values not received")
 	}
 
 	if len(s) < 4 {
