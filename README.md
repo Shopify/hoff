@@ -1,4 +1,4 @@
-# hoff: Higher Order Functions (and Friends)
+# hoff: Higher Order Functions (and Friends) [![Go Reference](https://pkg.go.dev/badge/github.com/Shopify/hoff.svg)](https://pkg.go.dev/github.com/Shopify/hoff)
 
 Golang 1.18+ implementations of common methods/data structures using Go Generics
 
