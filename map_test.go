@@ -236,7 +236,7 @@ func BenchmarkMapConcurrentToResults(b *testing.B) {
 		r = MapConcurrentToResults(ctx, arr, fn)
 	}
 	benchResult = r.Values()
-	benchErr = r.Errors()[0]
+	benchErr = nil
 }
 
 func BenchmarkMapConcurrentError(b *testing.B) {
