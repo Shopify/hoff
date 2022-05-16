@@ -348,7 +348,7 @@ func ExampleMapConcurrentToResults_failure() {
 	results := MapConcurrentToResults(ctx, []int{1, 2, 42}, fn)
 
 	fmt.Println(results.Errors())
-	// Output: [<nil> <nil> MapConcurrentToResults got an error in index 2, value 42: 42 is already the answer]
+	// Output: [MapConcurrentToResults got an error in index 2, value 42: 42 is already the answer]
 }
 
 func ExampleMapConcurrentToResults_panic() {
@@ -363,7 +363,7 @@ func ExampleMapConcurrentToResults_panic() {
 	results := MapConcurrentToResults(ctx, []int{1, 2, 42}, fn)
 
 	fmt.Println(results.Errors())
-	// Output: [<nil> <nil> MapConcurrentToResults recovered from panic while processing index 2, value 42: 42 is already the answer]
+	// Output: [MapConcurrentToResults recovered from panic while processing index 2, value 42: 42 is already the answer]
 }
 
 func ExampleMapConcurrentError_success() {
