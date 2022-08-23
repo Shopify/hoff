@@ -13,6 +13,31 @@ const benchmarkArrayLength = 10_000
 
 var benchResult []int
 
+func TestToKeys(t *testing.T) {
+	t.Run(
+		"String Keys", func(t *testing.T) {
+			test := map[string]int{
+				"one":   1,
+				"two":   2,
+				"three": 3,
+			}
+			keys := ToKeys(test)
+			require.ElementsMatch(t, []string{"one", "two", "three"}, keys)
+		},
+	)
+	t.Run(
+		"Int Keys", func(t *testing.T) {
+			test := map[int]string{
+				1: "one",
+				2: "two",
+				3: "three",
+			}
+			keys := ToKeys(test)
+			require.ElementsMatch(t, []int{1, 2, 3}, keys)
+		},
+	)
+}
+
 func TestToValues(t *testing.T) {
 	nums := map[string]int{
 		"one":   1,
@@ -44,7 +69,7 @@ func TestToSlice(t *testing.T) {
 func BenchmarkToValues(b *testing.B) {
 	arr := make(map[int]int, benchmarkArrayLength)
 	for i := range arr {
-		arr[i] = rand.Int()
+		arr[i] = rand.Int() //nolint:gosec
 	}
 
 	var r []int
@@ -57,7 +82,7 @@ func BenchmarkToValues(b *testing.B) {
 func BenchmarkToSlice(b *testing.B) {
 	arr := make(map[int]int, benchmarkArrayLength)
 	for i := range arr {
-		arr[i] = rand.Int()
+		arr[i] = rand.Int() //nolint:gosec
 	}
 	var r []int
 	for i := 0; i < b.N; i++ {

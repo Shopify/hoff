@@ -18,3 +18,11 @@ func ToSlice[M ~map[K]V, K comparable, V, R any](items M, f func(K, V) R) []R {
 	}
 	return out
 }
+
+func ToKeys[In any, Key comparable](arr map[Key]In) []Key {
+	out := make([]Key, 0, len(arr))
+	for key := range arr {
+		out = append(out, key)
+	}
+	return out
+}
