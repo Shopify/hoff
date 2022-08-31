@@ -4,8 +4,8 @@ import "context"
 
 // Filter takes an array of T's and applies the callback fn to each element.
 // If fn returns true, the element is included in the returned collection, if false it is excluded.
-// Example: [1, 2, 3].Filter(<number is odd?>) = [1, 3].
 func Filter[T any](arr []T, fn func(T) bool) (out []T) {
+	out = make([]T, 0)
 	for _, elem := range arr {
 		if fn(elem) {
 			out = append(out, elem)
@@ -20,6 +20,7 @@ func FilterContext[T any](
 	arr []T,
 	fn func(ctx context.Context, elem T) bool,
 ) (out []T) {
+	out = make([]T, 0)
 	for _, elem := range arr {
 		if fn(ctx, elem) {
 			out = append(out, elem)
@@ -33,6 +34,7 @@ func FilterError[T any](
 	arr []T,
 	fn func(elem T) (bool, error),
 ) (out []T, err error) {
+	out = make([]T, 0)
 	for _, elem := range arr {
 		include, err := fn(elem)
 		if err != nil {
@@ -52,6 +54,7 @@ func FilterContextError[T any](
 	arr []T,
 	fn func(ctx context.Context, elem T) (bool, error),
 ) (out []T, err error) {
+	out = make([]T, 0)
 	for _, elem := range arr {
 		include, err := fn(ctx, elem)
 		if err != nil {

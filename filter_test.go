@@ -8,6 +8,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func ExampleFilter() {
+	fmt.Println(
+		Filter(
+			[]int{1, 2, 3}, func(item int) bool {
+				return item%2 != 0
+			},
+		),
+	)
+	fmt.Println(
+		Filter(
+			[]int{1, 2, 3}, func(item int) bool {
+				return item > 10
+			},
+		),
+	)
+	// Output:
+	// [1 3]
+	// []
+}
+
 func TestFilterInts(t *testing.T) {
 	ints := []int{1, 2, 3, 4, 5}
 	filtered := Filter(
@@ -16,6 +36,17 @@ func TestFilterInts(t *testing.T) {
 		},
 	)
 	require.ElementsMatch(t, filtered, []int{2, 4})
+}
+
+func TestFilterInts_NoMatches(t *testing.T) {
+	ints := []int{1, 2, 3}
+	filtered := Filter(
+		ints, func(i int) bool {
+			return i > 10
+		},
+	)
+	require.ElementsMatch(t, filtered, []int{})
+	require.Equal(t, []int{}, filtered)
 }
 
 func TestFilterStrings(t *testing.T) {
