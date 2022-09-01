@@ -23,6 +23,7 @@ func ToSlice[M ~map[K]V, K comparable, V, R any](items M, f func(K, V) R) []R {
 	return out
 }
 
+// ToKeys returns an array of the keys of the input Map.
 func ToKeys[In any, Key comparable](arr map[Key]In) []Key {
 	i := 0
 	out := make([]Key, len(arr))

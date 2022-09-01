@@ -119,3 +119,16 @@ func ExampleToSlice() {
 	fmt.Println(results)
 	// Output: [1 in text is one 2 in text is two 3 in text is three]
 }
+
+func ExampleToKeys() {
+	nums := map[string]int{
+		"a": 1,
+		"b": 2,
+		"c": 3,
+	}
+	results := ToKeys(nums)
+
+	sort.Strings(results) // order is not guaranteed for map keys
+	fmt.Println(results)
+	// Output: [a b c]
+}
