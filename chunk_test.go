@@ -1,6 +1,7 @@
 package hoff
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -113,4 +114,19 @@ func TestChunkStructs(t *testing.T) {
 		output := Chunk(testCase.Input, testCase.ChunkSize)
 		require.Equal(t, testCase.ExpectedOutput, output, testCase.Message)
 	}
+}
+
+func ExampleChunk() {
+	fmt.Println(Chunk([]int{1, 2, 3, 4, 5}, 2))
+	// Output: [[1 2] [3 4] [5]]
+}
+
+func ExampleChunk_withEmptyArray() {
+	fmt.Println(Chunk([]int{}, 2))
+	// Output: []
+}
+
+func ExampleChunk_zeroBatchSize() {
+	fmt.Println(Chunk([]int{1, 2, 3}, 0))
+	// Output: []
 }
