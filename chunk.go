@@ -7,7 +7,6 @@ package hoff
 // Chunk([]int{1, 2, 3, 4, 5}, 2) = [[1, 2] [3, 4], [5]]
 // Chunk([]int{}, 2) = []
 // Chunk([]int{1, 2, 3}, 0) = [].
-
 func Chunk[T any](actions []T, batchSize int) [][]T {
 	// if the input is empty or batch size is 0, return an empty slice of slices
 	if len(actions) == 0 || batchSize <= 0 {
