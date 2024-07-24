@@ -10,7 +10,7 @@ jobs:
   deps:
     strategy:
       matrix:
-        version: ['1.18.0', '1.18.1']
+        version: ['1.22.0']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -23,7 +23,7 @@ jobs:
     needs: ["deps"]
     strategy:
       matrix:
-        version: ['1.18.0', '1.18.1']
+        version: ['1.22.0']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -42,7 +42,7 @@ jobs:
     needs: ["deps"]
     strategy:
       matrix:
-        version: ['1.18.0', '1.18.1']
+        version: ['1.22.0']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -52,7 +52,7 @@ jobs:
         go-version: ${{ matrix.version }}
     - name: Main branch coverage
       uses: actions/cache@v3
-      if: matrix.version == '1.18.1'
+      if: matrix.version == '1.22.0'
       with:
         path: |
           main.lcov
@@ -61,14 +61,14 @@ jobs:
           ${{ runner.os }}-refs/heads/main-
     - name: Test
       run: go test -v -coverprofile coverage.out -race ./...
-    - uses: jandelgado/gcov2lcov-action@v1.0.5
-      if: matrix.version == '1.18.1'
+    - uses: jandelgado/gcov2lcov-action@v1.0.9
+      if: matrix.version == '1.22.0'
     - name: Store main branch lcov
-      if: github.ref == 'refs/heads/main' && matrix.version == '1.18.1'
+      if: github.ref == 'refs/heads/main' && matrix.version == '1.22.0'
       run: cp coverage.lcov main.lcov
     - name: Code Coverage Report
       uses: osmind-development-org/lcov-reporter-action@v0.3.2
-      if: matrix.version == '1.18.1' && github.event_name == 'pull_request'
+      if: matrix.version == '1.22.0' && github.event_name == 'pull_request'
       with:
         lcov-file: ./coverage.lcov
         lcov-base: ./main.lcov
@@ -82,7 +82,7 @@ jobs:
     needs: ["deps"]
     strategy:
       matrix:
-        version: ['1.18.0', '1.18.1']
+        version: ['1.22.0']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -92,8 +92,8 @@ jobs:
         go-version: ${{ matrix.version }}
     - name: Static check
       if: github.event_name == 'pull_request'
-      uses: dominikh/staticcheck-action@v1.2.0
+      uses: dominikh/staticcheck-action@v1.3.1
       with:
-        version: "2022.1.1"
+        version: "2023.1.7"
         install-go: false
         cache-key: ${{ matrix.go }}
