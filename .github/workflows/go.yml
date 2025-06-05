@@ -92,7 +92,7 @@ jobs:
         go-version: ${{ matrix.version }}
     - name: Static check
       if: github.event_name == 'pull_request'
-      uses: dominikh/staticcheck-action@5106bb8ba1333e0510c91b2aa44c5ede005d9cff # v1.3.1
+      uses: dominikh/staticcheck-action@fe1dd0c3658873b46f8c9bb3291096a617310ca6 # v1.3.1
       with:
         version: "2023.1.7"
         install-go: false
