@@ -9,7 +9,7 @@ package hoff
 // Chunk([]int{1, 2, 3}, 0) = [].
 func Chunk[T any](actions []T, batchSize int) [][]T {
 	// if the input is empty or batch size is 0, return an empty slice of slices
-	if len(actions) == 0 || batchSize < 1 {
+	if len(actions) == 0 || batchSize <= 0 {
 		return [][]T{}
 	}
 	// make out as a new slice of type T slices, up to the max number of chunks in the result
